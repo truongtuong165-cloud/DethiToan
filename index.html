@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Thư Mục Đề Thi Toàn Diện</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #c0392b; --gold: #d4a017; --navy: #0f1e3d; --navy-light: #1a3260;
+            --bg: #f5f0e8; --bg2: #ede7d9; --white: #fefcf8; --text: #1a1208; --border: #c9b99a;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        
+        .header-stripe { background: var(--red); height: 6px; }
+        header { background: var(--navy); padding: 20px; text-align: center; }
+        header h1 { font-family: 'Merriweather', serif; color: var(--gold); font-size: 1.6rem; text-transform: uppercase; }
+        
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: flex; gap: 25px; }
+        
+        /* CỘT TRÁI: CÂY THƯ MỤC */
+        .sidebar { flex: 1; background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 20px; box-shadow: 0 4px 24px rgba(15,30,61,0.1); max-height: 80vh; overflow-y: auto; }
+        .sidebar h2 { font-family: 'Merriweather', serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 15px; border-bottom: 2px solid var(--gold); padding-bottom: 5px; }
+        
+        ul { list-style-type: none; padding-left: 15px; }
+        li { margin: 8px 0; }
+        
+        .folder { cursor: pointer; font-weight: 600; background: var(--bg2); padding: 6px 12px; border-radius: 4px; display: block; transition: all 0.2s; }
+        .folder:hover { background: var(--border); color: var(--navy); }
+        .folder::before { content: "📁 "; display: inline-block; margin-right: 5px; }
+        .folder.open::before { content: "📂 "; }
+        
+        .file { padding: 6px 12px; color: var(--red); cursor: pointer; font-weight: 600; border-radius: 4px; }
+        .file::before { content: "📝 "; }
+        .file:hover { background: #fde0e0; text-decoration: underline; }
+        
+        .nested { display: none; border-left: 1px dashed var(--border); margin-left: 10px; }
+        .show { display: block; }
+        
+        /* CỘT PHẢI: KHU VỰC HIỂN THỊ ĐỀ THI */
+        .main-content { flex: 2.5; background: var(--white); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 24px rgba(15,30,61,0.1); min-height: 600px; display: flex; flex-direction: column; }
+        iframe { width: 100%; height: 80vh; border: none; border-radius: 4px; flex: 1; }
+        .welcome-msg { padding: 40px; text-align: center; font-family: 'Merriweather', serif; color: var(--navy-light); margin: auto; }
+    </style>
+</head>
+<body>
+
+<div class="header-stripe"></div>
+<header>
+    <h1>Hệ Thống Quản Lý Đề Thi Trực Tuyến</h1>
+</header>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>Danh Sách Lớp Học</h2>
+        <ul>
+            <li>
+                <span class="folder">Lớp 12</span>
+                <ul class="nested">
+                    <li>
+                        <span class="folder">Chương 1: Ứng dụng đạo hàm</span>
+                        <ul class="nested">
+                            <li>
+                                <span class="folder">Bài 1: Tính đơn điệu</span>
+                                <ul class="nested">
+                                    <li class="file" onclick="loadExam('template.html')">Đề luyện tập Bài 1 (Mã 0101)</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            
+            <li>
+                <span class="folder">Lớp 11</span>
+                <ul class="nested">
+                    <li>
+                        <span class="folder">Chương 1: Hàm số lượng giác</span>
+                        <ul class="nested">
+                            <li class="file" onclick="loadExam('toan11_chuong1.html')">Đề khảo sát lượng giác</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content" id="contentArea">
+        <div class="welcome-msg" id="welcomeMsg">
+            <h2>Chào mừng học sinh!</h2>
+            <p style="margin-top: 10px; font-family: sans-serif; color: #4a3f2f;">Vui lòng chọn một đề thi từ cây thư mục bên trái để bắt đầu làm bài.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hàm mở đề thi ở tab mới để hiển thị toàn màn hình
+    function loadExam(fileName) {
+        window.open(fileName, '_blank');
+    }
+
+    // Xử lý đóng/mở thư mục mượt mà
+    document.querySelectorAll('.folder').forEach(folder => {
+        folder.addEventListener('click', function(e) {
+            const nestedList = this.nextElementSibling;
+            if (nestedList && nestedList.classList.contains('nested')) {
+                nestedList.classList.toggle('show');
+                this.classList.toggle('open');
+            }
+            e.stopPropagation();
+        });
+    });
+</script>
+
+</body>
+</html>
