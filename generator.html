@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tạo Cây Thư Mục — Công cụ hỗ trợ</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#c0392b; --gold:#d4a017; --navy:#0f1e3d; --navy-light:#1a3260;
+  --bg:#f5f0e8; --bg2:#ede7d9; --white:#fefcf8; --text:#1a1208; --text2:#4a3f2f; --border:#c9b99a;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Source Sans 3', sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.header-stripe { background:var(--red); height:6px; }
+header { background:var(--navy); padding:20px; text-align:center; }
+header h1 { font-family:'Merriweather', serif; color:var(--gold); font-size:1.5rem; text-transform:uppercase; letter-spacing:0.5px; }
+header p { color:#b4c3d8; font-size:13px; margin-top:6px; text-transform:uppercase; letter-spacing:0.5px; }
+
+main { max-width:1200px; margin:30px auto; padding:0 20px 60px; }
+
+.intro {
+  background:var(--white); border:1px solid var(--border); border-radius:6px;
+  padding:18px 20px; margin-bottom:20px; box-shadow:0 2px 8px rgba(15,30,61,0.06);
+  font-size:14.5px; line-height:1.7; color:var(--text2);
+}
+.intro b { color:var(--navy); }
+.intro code { background:var(--bg2); padding:1px 6px; border-radius:3px; font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--red); }
+
+.grid { display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
+@media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+
+.panel {
+  background:var(--white); border:1px solid var(--border); border-radius:6px;
+  box-shadow:0 4px 18px rgba(15,30,61,0.08); display:flex; flex-direction:column; overflow:hidden;
+}
+.panel-head {
+  background:var(--navy); color:var(--white); padding:10px 16px; font-weight:700;
+  font-size:13px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; justify-content:space-between;
+}
+.panel-head .gold-dot { width:8px; height:8px; background:var(--gold); border-radius:50%; display:inline-block; margin-right:8px; }
+
+textarea {
+  flex:1; width:100%; min-height:480px; border:none; resize:vertical;
+  padding:16px; font-family:'JetBrains Mono', monospace; font-size:13.5px; line-height:1.6;
+  color:var(--text); background:var(--white); outline:none;
+}
+pre#output {
+  flex:1; width:100%; min-height:480px; margin:0; padding:16px; overflow:auto;
+  font-family:'JetBrains Mono', monospace; font-size:12.5px; line-height:1.55;
+  background:#fdfbf6; color:var(--text); white-space:pre; border-top:1px dashed var(--bg2);
+}
+.toolbar { display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--bg2); background:var(--bg); }
+button {
+  font-family:'Source Sans 3', sans-serif; font-weight:700; font-size:13.5px;
+  padding:9px 18px; border-radius:5px; border:1px solid var(--border); cursor:pointer;
+  background:var(--white); color:var(--navy); transition:all 0.15s;
+}
+button:hover { background:var(--bg2); }
+button.primary { background:var(--red); color:var(--white); border-color:var(--red); }
+button.primary:hover { background:#a93226; }
+.copied-msg { font-size:13px; color:var(--correct,#1a6b3a); align-self:center; font-weight:600; opacity:0; transition:opacity 0.3s; }
+.copied-msg.show { opacity:1; }
+
+.preview-section {
+  margin-top:20px; background:var(--white); border:1px solid var(--border); border-radius:6px;
+  box-shadow:0 4px 18px rgba(15,30,61,0.08); padding:20px; overflow:hidden;
+}
+.preview-section h2 { font-family:'Merriweather', serif; font-size:15px; color:var(--navy); margin-bottom:14px; border-bottom:2px solid var(--gold); padding-bottom:6px; }
+
+/* === Tree preview styles (same as index.html) === */
+.tree, .tree ul { list-style-type:none; }
+.tree { padding-left:0; }
+.tree ul { padding-left:20px; }
+.tree li { margin:1px 0; }
+.node { display:flex; align-items:center; gap:6px; padding:4px 8px; border-radius:4px; cursor:pointer; user-select:none; font-weight:600; font-size:14.5px; color:var(--text); transition:background 0.15s; white-space:nowrap; }
+.node:hover { background:var(--bg2); }
+.chevron { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; flex-shrink:0; transition:transform 0.15s ease; color:#8a7f6a; }
+.chevron svg { width:10px; height:10px; fill:currentColor; }
+.folder.open > .node .chevron { transform:rotate(90deg); }
+.file-spacer { display:inline-block; width:16px; flex-shrink:0; }
+.folder-icon { width:18px; height:18px; flex-shrink:0; }
+.folder-icon .closed { display:block; }
+.folder-icon .opened { display:none; }
+.folder.open > .node .folder-icon .closed { display:none; }
+.folder.open > .node .folder-icon .opened { display:block; }
+.file-icon { width:16px; height:16px; flex-shrink:0; color:var(--red); }
+.node.file-node { color:var(--red); font-weight:600; }
+.node.file-node:hover { background:#fde0e0; text-decoration:underline; }
+.nested { display:none; }
+.folder.open > .nested { display:block; }
+</style>
+</head>
+<body>
+
+<div class="header-stripe"></div>
+<header>
+  <h1>Công cụ tạo cây thư mục đề thi</h1>
+  <p>Sinh code HTML cho hệ thống quản lý đề thi — không cần gõ tay</p>
+</header>
+
+<main>
+  <div class="intro">
+    Gõ cấu trúc cây ở khung bên trái theo kiểu <b>thụt đầu dòng 2 khoảng trắng (hoặc Tab)</b> cho mỗi cấp.
+    Có <b>4 cấp</b>: <code>Lớp</code> → <code>Chương</code> → <code>Bài</code> → <code>Đề thi</code>.<br><br>
+    - Các dòng <b>không</b> có dấu <code>=&gt;</code> là tên <b>thư mục</b> (Lớp / Chương / Bài).<br>
+    - Dòng <b>đề thi</b> (cấp lá, trong cùng) viết theo dạng:<br>
+    &nbsp;&nbsp;<code>Tên hiển thị đề thi => template.html?exam=de_xxxx.js</code><br>
+    - Thêm dấu <code>*</code> ngay sau tên thư mục để mục đó <b>mở sẵn</b> khi tải trang (ví dụ: <code>1_Class_12*</code>).<br>
+    - Bấm <b>"Tạo HTML"</b> rồi <b>"Sao chép"</b>, dán đoạn này vào bên trong <code>&lt;ul class="tree"&gt;...&lt;/ul&gt;</code> của file <code>index.html</code>.
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-head"><span><span class="gold-dot"></span>Nhập cây thư mục</span></div>
+      <textarea id="input" spellcheck="false"></textarea>
+      <div class="toolbar">
+        <button class="primary" onclick="generate()">⚙️ Tạo HTML</button>
+        <button onclick="loadSample()">📋 Dán ví dụ mẫu</button>
+        <button onclick="clearAll()">🗑️ Xoá hết</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span><span class="gold-dot"></span>Mã HTML kết quả</span></div>
+      <pre id="output">// Kết quả sẽ hiện ở đây sau khi bấm "Tạo HTML"</pre>
+      <div class="toolbar">
+        <button class="primary" onclick="copyOutput()">📑 Sao chép</button>
+        <span class="copied-msg" id="copiedMsg">Đã sao chép vào clipboard!</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-section">
+    <h2>Xem trước cây thư mục</h2>
+    <ul class="tree" id="previewTree"></ul>
+  </div>
+</main>
+
+<script>
+const FOLDER_ICON_SVG = `<span class="folder-icon">
+    <svg class="closed" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+    <svg class="opened" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+  </span>`;
+const CHEVRON_SVG = `<span class="chevron"><svg viewBox="0 0 6 10"><path d="M1 1l4 4-4 4z"/></svg></span>`;
+const FILE_ICON_SVG = `<svg class="file-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M6 2h9l5 5v15H6zM14 2v5h5z"/></svg>`;
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Parse text input into a tree of {name, open, children:[], isFile, href}
+function parseTree(text) {
+  const lines = text.split('\n').filter(l => l.trim() !== '');
+  const root = { children: [] };
+  const stack = [{ node: root, indent: -1 }];
+
+  lines.forEach(rawLine => {
+    // detect indent: count leading spaces (tabs count as 2 spaces)
+    const expanded = rawLine.replace(/\t/g, '  ');
+    const indentMatch = expanded.match(/^(\s*)/);
+    const indent = Math.floor(indentMatch[1].length / 2);
+    let content = expanded.trim();
+    if (content === '') return;
+
+    let node;
+    const arrowIdx = content.indexOf('=>');
+    if (arrowIdx !== -1) {
+      const name = content.slice(0, arrowIdx).trim();
+      const href = content.slice(arrowIdx + 2).trim();
+      node = { name, href, isFile: true, children: [] };
+    } else {
+      let open = false;
+      if (content.endsWith('*')) { open = true; content = content.slice(0, -1).trim(); }
+      node = { name: content, open, isFile: false, children: [] };
+    }
+
+    while (stack.length && stack[stack.length-1].indent >= indent) stack.pop();
+    stack[stack.length-1].node.children.push(node);
+    stack.push({ node, indent });
+  });
+
+  return root;
+}
+
+function renderNode(node, depth) {
+  const pad = '  '.repeat(depth);
+  if (node.isFile) {
+    return `${pad}<li class="file" onclick="loadExam('${escapeHtml(node.href)}')">
+${pad}  <div class="node file-node">
+${pad}    <span class="file-spacer"></span>
+${pad}    ${FILE_ICON_SVG}
+${pad}    <span>${escapeHtml(node.name)}</span>
+${pad}  </div>
+${pad}</li>`;
+  }
+  const openClass = node.open ? ' open' : '';
+  const childrenHtml = node.children.map(c => renderNode(c, depth + 2)).join('\n');
+  return `${pad}<li class="folder${openClass}">
+${pad}  <div class="node">
+${pad}    ${CHEVRON_SVG}
+${pad}    ${FOLDER_ICON_SVG}
+${pad}    <span>${escapeHtml(node.name)}</span>
+${pad}  </div>
+${pad}  <ul class="nested">
+${childrenHtml}
+${pad}  </ul>
+${pad}</li>`;
+}
+
+function renderTree(root) {
+  return `<ul class="tree">\n${root.children.map(c => renderNode(c, 1)).join('\n')}\n</ul>`;
+}
+
+function generate() {
+  const text = document.getElementById('input').value;
+  const root = parseTree(text);
+  const html = root.children.map(c => renderNode(c, 0)).join('\n');
+  document.getElementById('output').textContent = html;
+  document.getElementById('previewTree').innerHTML = root.children.map(c => renderNode(c, 0)).join('\n');
+  attachToggle();
+}
+
+function attachToggle() {
+  document.querySelectorAll('#previewTree .folder > .node').forEach(node => {
+    node.onclick = function(e) {
+      this.parentElement.classList.toggle('open');
+      e.stopPropagation();
+    };
+  });
+}
+
+function loadExam(href) {
+  alert('Xem trước: bấm vào đây trong index.html thực tế sẽ mở:\n' + href);
+}
+
+function copyOutput() {
+  const text = document.getElementById('output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const msg = document.getElementById('copiedMsg');
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 1800);
+  });
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('output').textContent = '// Kết quả sẽ hiện ở đây sau khi bấm "Tạo HTML"';
+  document.getElementById('previewTree').innerHTML = '';
+}
+
+function loadSample() {
+  document.getElementById('input').value =
+`1_Class_12*
+  Chương 1: Ứng dụng đạo hàm
+    12.1__ham_so_do_thi
+      Đề luyện tập Bài 1 (Mã 0101) => template.html
+      Đề luyện tập Bài 2 (Mã 0102) => template.html?exam=de_0102.js
+    12.2__vetor_trong_khong_gian
+      Đề luyện tập vectơ (Mã 0201) => template.html?exam=de_0201.js
+  Chương 2: Khối đa diện
+    12.4__nguyen_ham_va_tich_phan
+      Đề nguyên hàm tích phân (Mã 0401) => template.html?exam=de_0401.js
+2_Class_11
+  Chương 1: Hàm số lượng giác
+    11.1__ham_so_luong_giac
+      Đề khảo sát lượng giác => toan11_chuong1.html`;
+  generate();
+}
+
+// generate on load with empty state
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('input').placeholder = '';
+});
+</script>
+
+</body>
+</html>

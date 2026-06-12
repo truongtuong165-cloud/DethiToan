@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THI THỬ TRỰC TUYẾN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #c0392b; --gold: #d4a017; --navy: #0f1e3d; --navy-light: #1a3260;
+            --bg: #f5f0e8; --bg2: #ede7d9; --white: #fefcf8; --text: #1a1208; --border: #c9b99a;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        .header-stripe { background: var(--red); height: 6px; }
+        header { background: var(--navy); padding: 20px; text-align: center; }
+        header h1 { font-family: 'Merriweather', serif; color: var(--gold); font-size: 1.6rem; text-transform: uppercase; }
+
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: flex; gap: 25px; }
+
+        /* CỘT TRÁI: CÂY THƯ MỤC */
+        .sidebar { flex: 1; background: var(--white); border: 1px solid var(--border); border-radius: 4px; padding: 20px; box-shadow: 0 4px 24px rgba(15,30,61,0.1); max-height: 80vh; overflow-y: auto; }
+        .sidebar h2 { font-family: 'Merriweather', serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 15px; border-bottom: 2px solid var(--gold); padding-bottom: 5px; }
+
+        /* ===== CÂY THƯ MỤC KIỂU VS CODE ===== */
+        .tree, .tree ul { list-style-type: none; }
+        .tree { padding-left: 0; }
+        .tree ul { padding-left: 20px; }
+        .tree li { margin: 1px 0; }
+
+        /* Hàng của 1 node (thư mục hoặc file) */
+        .node {
+            display: flex; align-items: center; gap: 6px;
+            padding: 4px 8px; border-radius: 4px; cursor: pointer;
+            user-select: none; font-weight: 600; font-size: 14.5px;
+            color: var(--text); transition: background 0.15s;
+            white-space: nowrap;
+        }
+        .node:hover { background: var(--bg2); }
+
+        /* Mũi tên xoay (chevron) */
+        .chevron {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 16px; height: 16px; flex-shrink: 0;
+            transition: transform 0.15s ease; color: #8a7f6a;
+        }
+        .chevron svg { width: 10px; height: 10px; fill: currentColor; }
+        .folder.open > .node .chevron { transform: rotate(90deg); }
+
+        /* Spacer cho file (không có chevron) để thẳng hàng với folder */
+        .file-spacer { display: inline-block; width: 16px; flex-shrink: 0; }
+
+        /* Icon thư mục màu vàng (đóng / mở) */
+        .folder-icon { width: 18px; height: 18px; flex-shrink: 0; }
+        .folder-icon .closed { display: block; }
+        .folder-icon .opened { display: none; }
+        .folder.open > .node .folder-icon .closed { display: none; }
+        .folder.open > .node .folder-icon .opened { display: block; }
+
+        /* Icon file */
+        .file-icon { width: 16px; height: 16px; flex-shrink: 0; color: var(--red); }
+
+        .node.file-node { color: var(--red); font-weight: 600; }
+        .node.file-node:hover { background: #fde0e0; text-decoration: underline; }
+
+        .nested { display: none; }
+        .folder.open > .nested { display: block; }
+
+        /* CỘT PHẢI: KHU VỰC HIỂN THỊ ĐỀ THI */
+        .main-content { flex: 2.5; background: var(--white); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 24px rgba(15,30,61,0.1); min-height: 600px; display: flex; flex-direction: column; }
+        iframe { width: 100%; height: 80vh; border: none; border-radius: 4px; flex: 1; }
+        .welcome-msg { padding: 40px; text-align: center; font-family: 'Merriweather', serif; color: var(--navy-light); margin: auto; }
+    </style>
+</head>
+<body>
+
+<div class="header-stripe"></div>
+<header>
+    <h1>Hệ Thống Quản Lý Đề Thi Trực Tuyến - Trương Tường</h1>
+</header>
+
+<div class="container">
+    <div class="sidebar">
+        <h2>Danh Sách Lớp Học</h2>
+
+        <!--
+          ============================================================
+          CẤU TRÚC CÂY: Lớp > Chương > Bài > Đề thi
+          - Thư mục (folder): <li class="folder">
+          - File đề thi (lá):  <li class="file" onclick="loadExam('....html?exam=....js')">
+          Thêm class "open" vào <li class="folder open"> nếu muốn mục đó
+          mở sẵn khi tải trang (giống ảnh mẫu: 1_Class_12 đang mở).
+
+          ĐỂ TẠO NHANH PHẦN <ul class="nested">...</ul> CHO NHIỀU
+          THƯ MỤC/BÀI HỌC, dùng công cụ generator.html đi kèm:
+          chỉ cần gõ cây dạng text thụt đầu dòng, công cụ sẽ xuất
+          ra đúng đoạn HTML để dán vào đây.
+          ============================================================
+        -->
+        <ul class="tree">
+            <li class="folder open">
+                <div class="node">
+                    <span class="chevron"><svg viewBox="0 0 6 10"><path d="M1 1l4 4-4 4z"/></svg></span>
+                    <span class="folder-icon">
+                        <svg class="closed" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4H2v16h20V6H12z" opacity="0.0"/><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                        <svg class="opened" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                    </span>
+                    <span>1_Class_12</span>
+                </div>
+                <ul class="nested">
+
+                    <li class="folder">
+                        <div class="node">
+                            <span class="chevron"><svg viewBox="0 0 6 10"><path d="M1 1l4 4-4 4z"/></svg></span>
+                            <span class="folder-icon">
+                                <svg class="closed" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                                <svg class="opened" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                            </span>
+                            <span>Chương 1: Ứng dụng đạo hàm</span>
+                        </div>
+                        <ul class="nested">
+
+                            <li class="folder">
+                                <div class="node">
+                                    <span class="chevron"><svg viewBox="0 0 6 10"><path d="M1 1l4 4-4 4z"/></svg></span>
+                                    <span class="folder-icon">
+                                        <svg class="closed" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                                        <svg class="opened" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                                    </span>
+                                    <span>12.1__ham_so_do_thi</span>
+                                </div>
+                                <ul class="nested">
+                                    <li class="file" onclick="loadExam('template.html')">
+                                        <div class="node file-node">
+                                            <span class="file-spacer"></span>
+                                            <svg class="file-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M6 2h9l5 5v15H6zM14 2v5h5z"/></svg>
+                                            <span>Đề luyện tập Bài 1 (Mã 0101)</span>
+                                        </div>
+                                    </li>
+                                    <li class="file" onclick="loadExam('template.html?exam=de_0102.js')">
+                                        <div class="node file-node">
+                                            <span class="file-spacer"></span>
+                                            <svg class="file-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M6 2h9l5 5v15H6zM14 2v5h5z"/></svg>
+                                            <span>Đề luyện tập Bài 2 (Mã 0102)</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </li>
+
+                    <!-- Các thư mục khác (12.2, 12.3, ...) thêm tương tự ở đây -->
+
+                </ul>
+            </li>
+
+            <li class="folder">
+                <div class="node">
+                    <span class="chevron"><svg viewBox="0 0 6 10"><path d="M1 1l4 4-4 4z"/></svg></span>
+                    <span class="folder-icon">
+                        <svg class="closed" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                        <svg class="opened" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                    </span>
+                    <span>2_Class_11</span>
+                </div>
+                <ul class="nested">
+                    <li class="folder">
+                        <div class="node">
+                            <span class="chevron"><svg viewBox="0 0 6 10"><path d="M1 1l4 4-4 4z"/></svg></span>
+                            <span class="folder-icon">
+                                <svg class="closed" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                                <svg class="opened" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                            </span>
+                            <span>Chương 1: Hàm số lượng giác</span>
+                        </div>
+                        <ul class="nested">
+                            <li class="folder">
+                                <div class="node">
+                                    <span class="chevron"><svg viewBox="0 0 6 10"><path d="M1 1l4 4-4 4z"/></svg></span>
+                                    <span class="folder-icon">
+                                        <svg class="closed" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                                        <svg class="opened" viewBox="0 0 24 24"><path fill="#dcb67a" d="M1.5 4.5a1 1 0 0 1 1-1h6l2 2h11a1 1 0 0 1 1 1v1.5h-21z"/><path fill="#f6cf8e" d="M1.5 6.5h21l-1.2 11.7a1 1 0 0 1-1 .9H3.7a1 1 0 0 1-1-.9z"/></svg>
+                                    </span>
+                                    <span>11.1__ham_so_luong_giac</span>
+                                </div>
+                                <ul class="nested">
+                                    <li class="file" onclick="loadExam('toan11_chuong1.html')">
+                                        <div class="node file-node">
+                                            <span class="file-spacer"></span>
+                                            <svg class="file-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M6 2h9l5 5v15H6zM14 2v5h5z"/></svg>
+                                            <span>Đề khảo sát lượng giác</span>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content" id="contentArea">
+        <div class="welcome-msg" id="welcomeMsg">
+            <h2>Chào mừng học sinh!</h2>
+            <p style="margin-top: 10px; font-family: sans-serif; color: #4a3f2f;">Vui lòng chọn một đề thi từ cây thư mục bên trái để bắt đầu làm bài.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hàm mở đề thi ở tab mới để hiển thị toàn màn hình
+    function loadExam(fileName) {
+        window.open(fileName, '_blank');
+    }
+
+    // Đóng/mở thư mục: chỉ toggle folder gần nhất chứa node được click
+    document.querySelectorAll('.folder > .node').forEach(node => {
+        node.addEventListener('click', function(e) {
+            this.parentElement.classList.toggle('open');
+            e.stopPropagation();
+        });
+    });
+</script>
+
+</body>
+</html>
