@@ -119,15 +119,8 @@ function buildTree(catalog) {
             const chapLi = makeFolderLi(chap.chapter);
             const chapNested = chapLi.querySelector('.nested');
 
-            chap.lessons.forEach(les => {
-                const lesLi = makeFolderLi(les.lesson);
-                const lesNested = lesLi.querySelector('.nested');
-
-                les.exams.forEach(exam => {
-                    lesNested.appendChild(makeFileLi(exam.label, exam.file));
-                });
-
-                chapNested.appendChild(lesLi);
+            chap.exams.forEach(exam => {
+                chapNested.appendChild(makeFileLi(exam.label, exam.file));
             });
 
             classNested.appendChild(chapLi);
