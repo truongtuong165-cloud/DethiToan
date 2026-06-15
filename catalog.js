@@ -16,53 +16,41 @@ const CATALOG = [
         exams: [
           { label: "Đề luyện tập Bài 1 (Mã 0101)", file: "de_0101.js" },
           { label: "Đề luyện tập Bài 2 (Mã 0102)", file: "de_0102.js" },
-          // Thêm đề mới ở đây ↓
         ]
       },
-      {
-        chapter: "12.2 — Vectơ trong không gian",
-        exams: [
-          { label: "Đề luyện tập Bài 1 (Mã 0201)", file: "de_0201.js" },
-        ]
-      },
-      {
-        chapter: "12.3 — Số đo độ phân tán",
-        exams: [
-          { label: "Đề luyện tập Bài 1 (Mã 0301)", file: "de_0301.js" },
-        ]
-      },
-      {
-        chapter: "12.4 — Nguyên hàm và tích phân",
-        exams: [
-          { label: "Đề luyện tập Bài 1 (Mã 0401)", file: "de_0401.js" },
-        ]
-      },
-      {
-        chapter: "12.5 — Hình học Oxyz",
-        exams: [
-          { label: "Đề luyện tập Bài 1 (Mã 0501)", file: "de_0501.js" },
-        ]
-      },
-      {
-        chapter: "12.6 — Xác suất có điều kiện",
-        exams: [
-          { label: "Đề luyện tập Bài 1 (Mã 0601)", file: "de_0601.js" },
-        ]
-      },
-      // Thêm chương mới ở đây ↓
+      { chapter: "12.2 — Vectơ trong không gian", exams: [] },
+      { chapter: "12.3 — Số đo độ phân tán",      exams: [] },
+      { chapter: "12.4 — Nguyên hàm và tích phân", exams: [] },
+      { chapter: "12.5 — Hình học Oxyz",           exams: [] },
+      { chapter: "12.6 — Xác suất có điều kiện",   exams: [] },
     ]
   },
   {
     class: "2_Class_11",
     chapters: [
-      {
-        chapter: "11.1 — Hàm số lượng giác",
-        exams: [
-          { label: "Đề khảo sát lượng giác", file: "toan11_chuong1.html" },
-        ]
-      },
-      // Thêm chương mới ở đây ↓
+      { chapter: "11.I — Hàm số lượng giác và phương trình lượng giác", exams: [] },
+      { chapter: "11.II — Dãy số. Cấp số cộng và cấp số nhân",          exams: [] },
+      { chapter: "11.III — Các số đặc trưng đo xu thể trung tâm của mẫu số liệu ghép nhóm", exams: [] },
+      { chapter: "11.IV — Quan hệ song song trong không gian",           exams: [] },
+      { chapter: "11.V — Giới hạn. Hàm số liên tục",                    exams: [] },
+      { chapter: "11.VI — Hàm số mũ và hàm số lôgarit",                 exams: [] },
+      { chapter: "11.VII — Quan hệ vuông góc trong không gian",          exams: [] },
+      { chapter: "11.VIII — Các quy tắc tính xác suất",                  exams: [] },
+      { chapter: "11.IX — Đạo hàm",                                      exams: [] },
     ]
   },
-  // Thêm lớp mới ở đây ↓
+  {
+    class: "3_Class_10",
+    chapters: [
+      { chapter: "10.I — Mệnh đề và tập hợp",                                      exams: [] },
+      { chapter: "10.II — Bất phương trình và hệ bất phương trình bậc nhất hai ẩn", exams: [] },
+      { chapter: "10.III — Hệ thức lượng trong tam giác",                           exams: [] },
+      { chapter: "10.IV — Vectơ",                                                   exams: [] },
+      { chapter: "10.V — Các số đặc trưng của mẫu số liệu không ghép nhóm",         exams: [] },
+      { chapter: "10.VI — Hàm số, đồ thị và ứng dụng",                             exams: [] },
+      { chapter: "10.VII — Phương pháp tọa độ trong mặt phẳng",                    exams: [] },
+      { chapter: "10.VIII — Đại số tổ hợp",                                         exams: [] },
+      { chapter: "10.IX — Tính xác suất theo định nghĩa cổ điển",                   exams: [] },
+    ]
+  },
 ];
