@@ -20,7 +20,7 @@ const CATALOG = [
             exams: [
               { label: "Đề luyện tập Bài 1 (Mã 0101)", file: "de_0101.js" },
               { label: "Đề luyện tập Bài 2 (Mã 0102)", file: "de_0102.js" },
-              { label: "Đề luyện tập Bài 2 (Mã 0102)", file: "de_0103.js" },
+              { label: "Đề luyện tập Bài 3 (Mã 0103)", file: "de_0103.js" },
               // Thêm đề mới ở đây ↓
             ]
           },
